@@ -43,7 +43,6 @@ void loop(void)
   getCarbonMonoxide();
   getCarbonDiOxide();
   sendAll();
-  
 }
 
 void sendAll(){
@@ -95,13 +94,18 @@ void getCarbonDiOxide(){
   //error=Wire.endTransmission();     // stop transmitting
   */
   
-  Wire.beginTransmission(byte(0x68)); // transmit to device #4
+/*  In our case we want to read 2 bytes starting from address 0x08. This will give us data
+from address 0x08 and 0x09, which contains current CO2 reading. The sensor address is
+0x68 (default factory setting, configurable in EEPROM).
+*/
+  
+  Wire.beginTransmission(I2cDeviceAddress); // transmit to device address
   //Wire.write("Start");
-  //Wire.write(byte(0xD0));                            // device address is specified in datasheet
-  Wire.write(byte(0x22));            // sends instruction byte  
-  Wire.write(byte(0x00));
-  Wire.write(byte(0x08));
-  Wire.write(byte(0x2A));
+  //Wire.write(byte(0xD0));           // device address is specified in datasheet
+  Wire.write(byte(0x22));            // 0x22 is command number 2 (ReadRAM), and 2 bytes to read
+  Wire.write(byte(0x00));            //
+  Wire.write(byte(0x08));          //starting from address 0x08.
+  Wire.write(byte(0x2A));        //Checksum 0x2A is calculated as sum of byte 2, 3 and 4. 
   //Wire.write("Stop");
   // sends one byte  
   error=Wire.endTransmission(); 
@@ -139,7 +143,7 @@ void getCarbonDiOxide(){
   
   delay(20);
   //Serial.println(Wire.requestFrom(104, 4));
-  Wire.requestFrom(104, 4);
+  Wire.requestFrom(104, 4);      //requesting 4 bytes
   /*
   while(Wire.available())    // slave may send less than requested
   { 
